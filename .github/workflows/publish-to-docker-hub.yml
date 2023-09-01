@@ -1,18 +1,16 @@
 name: Publish images to Docker Hub
 
 on:
-  workflow_dispatch:
-    inputs:
-      UBUNTU_VERSION:
-        description: 'Ubuntu version'
-      GOLANG_VERSION:
-        description: 'Golang version'
+  push:
+    branches: [master]
 
 jobs:
   push-golang-prod:
     name: Publish image golang-prod
     runs-on: ubuntu-latest
-    if: github.event.inputs.UBUNTU_VERSION != ''
+    strategy:
+      matrix:
+        UBUNTU_VERSION: ["18.04", "20.04", "22.04"]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -30,13 +28,15 @@ jobs:
           provenance: false
           platforms: linux/amd64,linux/arm64
           context: ./golang-prod
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/golang-prod:${{ github.event.inputs.UBUNTU_VERSION }}
-          build-args: UBUNTU_VERSION=${{ github.event.inputs.UBUNTU_VERSION }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/golang-prod:${{ matrix.UBUNTU_VERSION }}
+          build-args: UBUNTU_VERSION=${{ matrix.UBUNTU_VERSION }}
 
   push-golang-dev:
     name: Publish image golang-dev
     runs-on: ubuntu-latest
-    if: github.event.inputs.GOLANG_VERSION != ''
+    strategy:
+      matrix:
+        GOLANG_VERSION: ["1.19", "1.20", "1.21"]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -54,13 +54,15 @@ jobs:
           provenance: false
           platforms: linux/amd64,linux/arm64
           context: ./golang-dev
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/golang-dev:${{ github.event.inputs.GOLANG_VERSION }}
-          build-args: GOLANG_VERSION=${{ github.event.inputs.GOLANG_VERSION }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/golang-dev:${{ matrix.GOLANG_VERSION }}
+          build-args: GOLANG_VERSION=${{ matrix.GOLANG_VERSION }}
 
   push-ubuntu-sshd:
     name: Publish image ubuntu-sshd
     runs-on: ubuntu-latest
-    if: github.event.inputs.UBUNTU_VERSION != ''
+    strategy:
+      matrix:
+        UBUNTU_VERSION: ["18.04", "20.04", "22.04"]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -78,5 +80,5 @@ jobs:
           provenance: false
           platforms: linux/amd64,linux/arm64
           context: ./ubuntu-sshd
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ubuntu-sshd:${{ github.event.inputs.UBUNTU_VERSION }}
-          build-args: UBUNTU_VERSION=${{ github.event.inputs.UBUNTU_VERSION }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ubuntu-sshd:${{ matrix.UBUNTU_VERSION }}
+          build-args: UBUNTU_VERSION=${{ matrix.UBUNTU_VERSION }}
