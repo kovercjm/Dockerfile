@@ -8,10 +8,9 @@
 ARG UBUNTU_VERSION=latest
 FROM ubuntu:${UBUNTU_VERSION}
 
-ENV TZ="Asia/Shanghai" CGO_ENABLE=0 GOOS=linux GOARCH=amd64
+ENV TZ="Asia/Shanghai" DEBIAN_FRONTEND="noninteractive"
 
-RUN DEBIAN_FRONTEND="noninteractive" \
-    apt update && \
+RUN apt update && \
     apt install --no-install-recommends -y \
       tzdata \
       ca-certificates \
